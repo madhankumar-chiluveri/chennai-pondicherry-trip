@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pondicherry Coastal Road Trip — The Official Trip Log</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Young+Serif&display=swap" rel="stylesheet">
+<style>
+:root{
+  --serif:"Young Serif",Georgia,"Times New Roman",serif;
+  --sans:"Figtree",system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --wall:#F2CC6B;
+  --plaster:#FFF9EA;
+  --ink:#2A1E12;
+  --muted:#5A4934;
+  --line:rgba(42,30,18,.14);
+  --line-strong:rgba(42,30,18,.32);
+  --asphalt:#3B3127;
+  --shutter:#1D4E89;
+  --link:#1D4E89;
+  --btn-bg:#1D4E89;
+  --bougain:#C8336E;
+  --bougain-ink:#FFFFFF;
+  --must-bg:rgba(200,51,110,.07);
+  --note-bg:#E4EDF8;
+  --sea:#0F6F7C;
+  --sea-ink:#F2FBFC;
+  --dry:#B42318; --dry-bg:#FDE4E0;
+  --party:#2E7D32; --party-bg:#E2F2E3;
+  --ret:#1D4E89; --ret-bg:#E2ECF8;
+  color-scheme:light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --wall:#0F1E2B; --plaster:#172B3B; --ink:#F3EAD6; --muted:#B3BEC8;
+    --line:rgba(243,234,214,.13); --line-strong:rgba(243,234,214,.3);
+    --asphalt:#2B3E4E; --shutter:#2A5E9E; --link:#9CC3F2; --btn-bg:#2A5E9E;
+    --bougain:#F06A9C; --bougain-ink:#22101A; --must-bg:rgba(240,106,156,.1); --note-bg:rgba(156,195,242,.12);
+    --sea:#0A3A44; --sea-ink:#E6F6F8;
+    --dry:#FF9C8F; --dry-bg:rgba(255,156,143,.13);
+    --party:#86D893; --party-bg:rgba(134,216,147,.13);
+    --ret:#9CC3F2; --ret-bg:rgba(156,195,242,.13);
+    color-scheme:dark;
+  }
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{background:var(--wall);scroll-padding-top:calc(env(safe-area-inset-top,0px) + 66px);-webkit-text-size-adjust:100%}
+@media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
+body{background:var(--wall);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--bougain);outline-offset:2px;border-radius:6px}
+.wrap{max-width:720px;margin:0 auto;padding:0 18px}
+
+.chips{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;background:var(--wall);border-bottom:1px solid var(--line)}
+.chips-in{display:flex;gap:8px;overflow-x:auto;padding:10px 18px;max-width:720px;margin:0 auto;scrollbar-width:none}
+.chips-in::-webkit-scrollbar{display:none}
+.chip{flex:none;display:inline-flex;align-items:center;gap:7px;padding:7px 14px;border-radius:999px;font-size:.86rem;font-weight:600;text-decoration:none;color:var(--ink);border:1.5px solid var(--line-strong);transition:background .2s,color .2s,border-color .2s}
+.chip .d{width:8px;height:8px;border-radius:50%}
+.chip.on{background:var(--ink);color:var(--wall);border-color:var(--ink)}
+
+.hero{padding-top:30px}
+.hero h1{font-family:var(--serif);font-weight:400;font-size:clamp(2.8rem,14vw,5rem);line-height:.95;letter-spacing:-.025em}
+.kicker{font-family:var(--serif);font-size:clamp(1.1rem,4.5vw,1.45rem);margin-top:8px;line-height:1.25}
+.lede{margin-top:12px;max-width:34rem;color:var(--muted)}
+.live-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(46,125,50,.14);color:var(--party);font-size:.82rem;font-weight:700;padding:4px 10px;border-radius:8px;margin-top:8px}
+
+.route{position:relative;height:92px;margin:30px 10px 0}
+.route-track,.route-fill{position:absolute;left:0;top:36px;height:6px;border-radius:3px}
+.route-track{right:0;background:var(--asphalt)}
+.route-fill{width:100%;background:var(--bougain);transition:width 2.4s cubic-bezier(.2,.7,.2,1)}
+.route-node{position:absolute;top:30px;left:var(--x);width:18px;margin-left:-9px}
+.pin{display:block;width:18px;height:18px;border-radius:50%;background:var(--bougain);border:3px solid var(--bougain)}
+.lbl{position:absolute;top:22px;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:.76rem;font-weight:600}
+.route-node.start .lbl{left:0;transform:none}
+.route-node.end .lbl{left:auto;right:0;transform:none}
+.route-node.stag .lbl{top:40px}
+
+@media (min-width:600px){
+  .route{height:78px}
+  .route-node.stag .lbl{top:22px}
+}
+
+.route-scooter{position:absolute;top:0;left:100%;margin-left:-15px;font-size:28px;line-height:1;filter:drop-shadow(0 2px 2px rgba(0,0,0,.2))}
+.bob{display:inline-block;transform:scaleX(-1);animation:bob 1.1s ease-in-out infinite}
+@keyframes bob{50%{transform:scaleX(-1) translateY(-3px)}}
+
+.status{margin-top:26px;background:var(--plaster);border:2px solid var(--ink);border-radius:18px;padding:16px 18px}
+.st-k{display:flex;align-items:center;gap:8px;font-size:.84rem;font-weight:700;color:var(--party)}
+.st-t{font-family:var(--serif);font-size:1.35rem;line-height:1.25;margin-top:4px}
+.st-m{color:var(--muted);font-size:.93rem;margin-top:2px}
+
+.waves{position:relative;height:56px;margin-top:30px}
+.wave{position:absolute;inset:0;background:var(--sea);
+  -webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 60' preserveAspectRatio='none'%3E%3Cpath d='M0 30 C100 10 200 10 300 30 S500 50 600 30 V60 H0 Z' fill='%23000'/%3E%3C/svg%3E");
+  mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 60' preserveAspectRatio='none'%3E%3Cpath d='M0 30 C100 10 200 10 300 30 S500 50 600 30 V60 H0 Z' fill='%23000'/%3E%3C/svg%3E");
+  -webkit-mask-size:600px 100%;mask-size:600px 100%;-webkit-mask-repeat:repeat-x;mask-repeat:repeat-x}
+.w1{top:-12px;opacity:.4;animation:drift 17s linear infinite}
+.w2{animation:drift 11s linear infinite reverse}
+@keyframes drift{to{-webkit-mask-position:600px 0;mask-position:600px 0}}
+.waves.flip{transform:scaleY(-1);margin-top:0}
+
+.sea{background:var(--sea);color:var(--sea-ink);padding:6px 0 20px}
+.sea .sec-h{color:var(--sea-ink)}
+.sea .sec-sub{color:var(--sea-ink);opacity:.82}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit, minmax(130px, 1fr));gap:10px;margin-top:12px}
+.stat-box{background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.2);border-radius:12px;padding:12px;text-align:center}
+.stat-val{font-family:var(--serif);font-size:1.45rem;line-height:1.15;color:#fff}
+.stat-lbl{font-size:.78rem;opacity:.88;margin-top:4px}
+
+.sec-h{font-family:var(--serif);font-weight:400;font-size:1.75rem;line-height:1.15;margin-bottom:6px}
+.sec-sub{color:var(--muted);margin-bottom:16px;max-width:36rem}
+.block{padding-top:44px}
+
+.timeline{position:relative;padding:4px 0 8px}
+.road{position:absolute;left:16px;top:0;bottom:10px;width:8px;border-radius:4px;background:var(--bougain)}
+.road::after{content:"";position:absolute;left:3px;top:0;bottom:0;width:2px;background:repeating-linear-gradient(to bottom,var(--wall) 0 8px,transparent 8px 18px);opacity:.75}
+
+.day{position:relative}
+.sign{position:relative;z-index:2;display:inline-flex;flex-direction:column;background:var(--shutter);color:#fff;border-radius:10px;padding:11px 22px 10px;margin:30px 0 10px;box-shadow:inset 0 0 0 3px var(--shutter),inset 0 0 0 5px rgba(255,255,255,.92)}
+.sign::before,.sign::after{content:"";position:absolute;top:50%;width:5px;height:5px;margin-top:-2.5px;border-radius:50%;background:rgba(255,255,255,.75)}
+.sign::before{left:10px}.sign::after{right:10px}
+.day:first-child .sign{margin-top:8px}
+.sign-name{font-family:var(--serif);font-size:1.5rem;line-height:1.15}
+.sign-sub{font-size:.8rem;opacity:.85}
+.day-sum{position:relative;z-index:2;margin:0 0 16px 56px;font-size:.93rem;color:var(--muted)}
+
+.tag{display:inline-block;font-size:.72rem;font-weight:700;padding:2px 8px;border-radius:6px;vertical-align:2px;margin-right:4px}
+.tag.done{background:#e2e8f0;color:#475569}
+.tag.party{background:var(--party-bg);color:var(--party)}
+.tag.drama{background:#fee2e2;color:#b91c1c}
+.tag.food{background:#fef08a;color:#854d0e}
+
+.stops{list-style:none}
+.stop{position:relative;margin:0 0 14px 56px}
+.node{position:absolute;left:-56px;top:12px;width:40px;height:40px;border-radius:50%;background:var(--plaster);border:2.5px solid var(--bougain);display:grid;place-items:center;font-size:19px;z-index:2}
+.node::after{content:"✓";position:absolute;right:-5px;bottom:-5px;width:18px;height:18px;border-radius:50%;background:var(--party);color:var(--plaster);font:700 11px/18px var(--sans);text-align:center}
+.card{position:relative;overflow:hidden;background:var(--plaster);border:1px solid var(--line);border-radius:16px;padding:14px 16px 15px}
+.t-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px}
+.time{font-weight:700;font-size:.83rem;color:var(--link);font-variant-numeric:tabular-nums}
+.stop h3{font-family:var(--serif);font-weight:400;font-size:1.2rem;line-height:1.28;margin:5px 0 6px}
+.body{font-size:.94rem;color:var(--muted)}
+.body strong{color:var(--ink);font-weight:600}
+.highlight{margin-top:10px;padding:9px 12px;border-left:3px solid var(--bougain);background:var(--must-bg);border-radius:0 10px 10px 0;font-size:.9rem}
+.highlight b{color:var(--bougain);margin-right:4px}
+.links{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border-radius:999px;font:600 .84rem/1.2 var(--sans);text-decoration:none;border:1.5px solid var(--link);color:var(--link);background:transparent;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.btn.solid{background:var(--btn-bg);border-color:var(--btn-bg);color:#fff}
+
+.panel{background:var(--plaster);border:1px solid var(--line);border-radius:18px;overflow:hidden}
+.row{display:flex;gap:14px;align-items:center;padding:14px 16px;border-top:1px solid var(--line)}
+.row:first-child{border-top:0}
+.row-main{flex:1;min-width:0}
+.row-t{font-weight:600;line-height:1.35}
+.row-m{font-size:.86rem;color:var(--muted)}
+.num{flex:none;width:28px;height:28px;border-radius:50%;background:var(--wall);color:var(--ink);display:grid;place-items:center;font:700 .8rem var(--sans);border:1.5px solid var(--line-strong)}
+
+footer{margin-top:40px;background:var(--sea);color:var(--sea-ink);padding:6px 0 30px;font-size:.88rem}
+footer p{opacity:.88;max-width:34rem}
+</style>
+</head>
+<body>
+
+<nav class="chips" aria-label="Sections">
+  <div class="chips-in" id="chips">
+    <a class="chip" href="#fri" data-for="fri"><span class="d" style="background:#64748b"></span>Fri 2 (ECR & Dry Day)</a>
+    <a class="chip" href="#sat" data-for="sat"><span class="d" style="background:var(--party)"></span>Sat 3 (Kayaking & Crawl)</a>
+    <a class="chip" href="#sun" data-for="sun"><span class="d" style="background:var(--ret)"></span>Sun 4 (Return & Marina)</a>
+    <a class="chip" href="#routes" data-for="routes">Places Visited</a>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <div class="wrap">
+    <h1>Pondicherry</h1>
+    <p class="kicker">The Official Coastal Trip Chronicle • Oct 2 – Oct 5, 2026</p>
+    <p class="lede">4 Friends • 2 Bikes from AKS Bike Rentals Vadapalani • ~400 km Logged • Auroville Cottage Base • Returned Safely to Hyderabad.</p>
+    <div class="live-badge">🏁 Mission Completed • Coastal Circuit Logged</div>
+
+    <div class="route" aria-label="Journey progress">
+      <div class="route-track"></div>
+      <div class="route-fill" id="routeFill"></div>
+      <div class="route-node start reached" style="--x:0%" data-x="0"><span class="pin"></span><span class="lbl">Vadapalani</span></div>
+      <div class="route-node reached stag" style="--x:30%" data-x="30"><span class="pin"></span><span class="lbl">Mahabalipuram</span></div>
+      <div class="route-node reached" style="--x:62%" data-x="62"><span class="pin"></span><span class="lbl">Auroville (Base)</span></div>
+      <div class="route-node end stag" style="--x:100%" data-x="100"><span class="pin"></span><span class="lbl">Hyderabad (Hostel)</span></div>
+      <div class="route-scooter" id="routeScooter" aria-hidden="true"><span class="bob">🛵</span></div>
+    </div>
+
+    <div class="status" id="status">
+      <p class="st-k">🏆 Trip Wrapped Up Successfully</p>
+      <p class="st-t">Hyderabad Hostel Arrival: 8:30 AM (Monday)</p>
+      <p class="st-m">Covered ~400 km across ECR highway, Ariyankuppam backwaters, White Town, and Marina Beach.</p>
+    </div>
+  </div>
+  <div class="waves" aria-hidden="true"><div class="wave w1"></div><div class="wave w2"></div></div>
+</header>
+
+<section class="sea" id="rules">
+  <div class="wrap">
+    <h2 class="sec-h">Trip Vital Statistics</h2>
+    <p class="sec-sub">Grounded overview of the completed weekend run.</p>
+    <div class="stats-grid">
+      <div class="stat-box"><div class="stat-val">2 Bikes</div><div class="stat-lbl">150cc (AKS Vadapalani)</div></div>
+      <div class="stat-box"><div class="stat-val">~400 km</div><div class="stat-lbl">Total Distance Logged</div></div>
+      <div class="stat-box"><div class="stat-val">5 Beaches</div><div class="stat-lbl">Coastlines Explored</div></div>
+      <div class="stat-box"><div class="stat-val">72 Hours</div><div class="stat-lbl">Door-to-Door Expedition</div></div>
+      <div class="stat-box"><div class="stat-val">4 Friends</div><div class="stat-lbl">1 Epic Road Trip</div></div>
+    </div>
+  </div>
+</section>
+<div class="waves flip" aria-hidden="true"><div class="wave w1"></div><div class="wave w2"></div></div>
+
+<main class="wrap">
+  <div class="timeline" id="timeline">
+    <div class="road" aria-hidden="true"></div>
+
+    <!-- FRIDAY, OCT 2 -->
+    <section class="day" id="fri" data-spy="fri">
+      <div class="sign"><span class="sign-name">Vendredi 2 octobre</span><span class="sign-sub">Friday, Day 1 (ECR Highway & Dry Day Search)</span></div>
+      <p class="day-sum"><span class="tag done">Day 1 Complete</span>Delayed arrival, AKS rentals pickup, Samudra lunch, Shore Temple, 95 km night ride, and the dry day run-in.</p>
+      <ol class="stops" data-day="fri"></ol>
+    </section>
+
+    <!-- SATURDAY, OCT 3 -->
+    <section class="day" id="sat" data-spy="sat">
+      <div class="sign"><span class="sign-name">Samedi 3 octobre</span><span class="sign-sub">Saturday, Day 2 (Kayaking, Eden Beach & Pub Crawl)</span></div>
+      <p class="day-sum"><span class="tag party">Day 2 Complete</span>Arikamedu mangrove boat safari, single kayak, Clinton Bar, Eden Beach swim & zipline, French Colony, Hook Lounge, Budweiser swap, and black market lock-in.</p>
+      <ol class="stops" data-day="sat"></ol>
+    </section>
+
+    <!-- SUNDAY, OCT 4 & RETURN -->
+    <section class="day" id="sun" data-spy="sun">
+      <div class="sign"><span class="sign-name">Dimanche 4 octobre</span><span class="sign-sub">Sunday, Day 3 & Return to Hyderabad</span></div>
+      <p class="day-sum"><span class="tag ret">Day 3 Complete</span>Auroville sunrise, idli disaster, red banana fuel, Marina Beach, Platform 1 scanner bypass, and train seat scramble.</p>
+      <ol class="stops" data-day="sun"></ol>
+    </section>
+  </div>
+
+  <section class="block" id="routes" data-spy="routes">
+    <h2 class="sec-h">Master Log of Places & Route Links</h2>
+    <p class="sec-sub">The exact locations and checkpoints visited.</p>
+    <div class="panel" id="routeList"></div>
+  </section>
+</main>
+
+<div class="waves" aria-hidden="true" style="margin-top:44px"><div class="wave w1"></div><div class="wave w2"></div></div>
+<footer>
+  <div class="wrap">
+    <p>Saved Trip Dossier • Hyderabad – Chennai – Pondicherry – Hyderabad Coastal Circuit.</p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var enc = encodeURIComponent;
+  function MAP(q){ return "https://www.google.com/maps/search/?api=1&query=" + enc(q); }
+  function DIR(o,d,w,m){ var u = "https://www.google.com/maps/dir/?api=1&origin=" + enc(o) + "&destination=" + enc(d); if(w) u += "&waypoints=" + enc(w); return u + "&travelmode=" + (m || "driving"); }
+  function S(t,q){ return {t:t, u:MAP(q)}; }
+  function N(t,o,d,w,m){ return {t:t, u:DIR(o,d,w,m), nav:true}; }
+
+  var PIN = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>';
+  var NAV = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 11 21 3l-8 18-2-8-8-2z"/></svg>';
+
+  var ITEMS = [
+    /* FRIDAY 2 OCT */
+    {day:"fri", time:"10:15 AM – 12:00 PM", icon:"🛵", title:"Delayed Arrival & Rapido to AKS Bike Rentals", tag:["Arrival","done"],
+      body:"Boarded the bus in Hyderabad (LB Nagar) at 10:10 PM the night before. Due to highway delays, arrived at Koyambedu CMBT at 10:15 AM. Skipped breakfast near the drop point and took Rapidos directly to <strong>AKS Bike Rentals on Arcot Road (near Vadapalani Metro)</strong> by 12:00 PM.",
+      links:[S("AKS Bike Rentals Vadapalani","AKS Bike Rental Arcot Road Vadapalani Chennai")]},
+    {day:"fri", time:"12:00 PM – 01:15 PM", icon:"🏍️", title:"Collect 150cc Bikes & Hit the ECR", tag:["ECR Highway","done"],
+      body:"Completed paperwork and collected the two rental bikes. Cruised through city traffic, hit Thiruvanmiyur, and opened up onto the coastal East Coast Road.",
+      links:[N("Navigate to ECR","Vadapalani, Chennai","Shore Temple, Mahabalipuram")]},
+    {day:"fri", time:"01:15 PM – 01:40 PM", icon:"🌊", title:"Freshen-up Pitstop & Surf Turf, Kovalam", tag:["Coastal Breeze","done"],
+      body:"Pulled over 10 km before Kovalam at 1:15 PM to wash up and freshen up for 15 minutes. Then rolled into <strong>Surf Turf, Kovalam</strong> (1:25 PM – 1:40 PM) for a 15-minute coastal sea-breeze stop before heading down to Mahabalipuram.",
+      links:[S("Surf Turf Kovalam","Surf Turf Kovalam")]},
+    {day:"fri", time:"01:50 PM – 02:45 PM", icon:"🍛", title:"Seafood Lunch @ The Samudra Restaurant", tag:["Seafood Lunch","food"],
+      body:"Stopped at <strong>The Samudra Restaurant</strong> (Vada Nemmeli, ECR) at 1:50 PM. Enjoyed a full coastal non-veg meal to refuel.",
+      links:[S("The Samudra Restaurant","The Samudra Restaurant Vadanemmeli ECR")]},
+    {day:"fri", time:"03:00 PM – 03:30 PM", icon:"🛕", title:"Shore Temple Exploration (Mahabalipuram)", tag:["UNESCO Heritage","done"],
+      body:"Reached the 8th-century monolithic Shore Temple right by the crashing surf by 3:00 PM. Entered with tickets at ₹35 each. Explored under the intense, blazing midday sun and exited by 3:30 PM.",
+      links:[S("Shore Temple","Shore Temple Mahabalipuram")]},
+    {day:"fri", time:"03:45 PM – 06:30 PM", icon:"🛣️", title:"95 km Highway Ride to Serenity Beach", tag:["Coastal Cruise","done"],
+      body:"Hit the road at 3:45 PM with 95 km left to Pondicherry. Reached Serenity Beach at 6:30 PM as dusk settled and started hunting for stays on the beachfront.",
+      links:[N("ECR to Pondy","Shore Temple, Mahabalipuram","Serenity Beach, Puducherry")]},
+    {day:"fri", time:"06:30 PM – 08:00 PM", icon:"🏡", title:"Serenity Scouting & Auroville Cottage Check-In", tag:["Accommodation","done"],
+      body:"Roamed around Serenity Beach checking room options, then rode inland toward Auroville and officially checked into a private cottage at 8:00 PM.",
+      links:[S("Auroville Beach","Auroville Beach Bommayapalayam")]},
+    {day:"fri", time:"08:00 PM – 11:30 PM", icon:"🌙", title:"Dry Day Liquor Hunt & Police Beach Run-in", tag:["Dry Day Reality","drama"],
+      body:"Roamed and hunted for black-market alcohol for two solid hours across Kottakuppam/ECR with zero luck due to strict Gandhi Jayanti dry day enforcement. Ended up heading to Auroville Beach at 10:00 PM with bottles of Thums Up until the beach police patrol showed up and sent everyone back to the cottage.",
+      highlight:["The Dry Day Lesson","Zero black-market availability on Gandhi Jayanti; police strictly cleared the dark beach after 10 PM."]},
+
+    /* SATURDAY 3 OCT */
+    {day:"sat", time:"07:30 AM – 08:30 AM", icon:"🌅", title:"Morning Walk @ Auroville Beach", tag:["Morning Shore","done"],
+      body:"Woke up at 7:30 AM and walked straight to Auroville Beach right outside your cottage. Explored the shore, which felt like a small Rock Beach with coastal rocks and waves."},
+    {day:"sat", time:"08:30 AM – 09:35 AM", icon:"☕", title:"Pichavaram Cancelled → Ride to Arikamedu Boating", tag:["Pivot to Mangroves","done"],
+      body:"Made the smart call to cancel the 150 km Pichavaram ride due to tight afternoon time constraints. Grabbed morning tea/coffee and rode down to <strong>Mangrove Forest Boating & Kayaking near the Arikamedu Trust (Baby Sarah Home, Kaakaayanthope)</strong>, arriving by 9:35 AM.",
+      links:[S("Arikamedu Mangrove Boating","Mangrove Forest Boating Ariyankuppam Puducherry")]},
+    {day:"sat", time:"10:00 AM – 10:50 AM", icon:"🚤", title:"Motor Boat Safari: 3 Unique Locations", tag:["Boat Safari","done"],
+      body:"Boarded the boat safari at 10:00 AM. Covered the three signature points: <strong>The Mangrove Forest Channels, the River Mouth (Estuary), and the Coastal Fishing Harbour</strong>. Returned to dock by 10:50 AM."},
+    {day:"sat", time:"11:00 AM – 11:55 AM", icon:"🍗", title:"Kayaking Slot Booked & The Biryani Search", tag:["Lunch Search","food"],
+      body:"Booked the single kayak slot for 12:00 PM – 1:00 PM. Ventured out at 11:30 AM for lunch; with most breakfast and lunch shops not yet open, chose hot Biryani again.",
+      links:[S("Ariyankuppam Biryani","biryani Ariyankuppam Puducherry")]},
+    {day:"sat", time:"12:00 PM – 01:10 PM", icon:"🛶", title:"Single Kayaking & The Vizag Video Crew", tag:["Mangrove Kayaking","done"],
+      body:"Paddled through the calm mangrove waters from 12:00 PM to 1:10 PM. Met a friendly Telugu group from Visakhapatnam who helped capture awesome paddling action videos on the backwaters."},
+    {day:"sat", time:"01:37 PM – 02:00 PM", icon:"🍺", title:"Clinton Bar Pitstop & Drunk-and-Drive Clearance", tag:["First Beer","party"],
+      body:"Stopped at <strong>Clinton Bar & Restaurant</strong> at 1:37 PM for 1 cold Budweiser each. Checked with the bar owner regarding highway police drunk-and-drive checks; received the green signal and started toward Eden Beach by 2:00 PM.",
+      links:[S("Clinton Bar Ariyankuppam","Clinton Bar and Restaurant Ariyankuppam Puducherry")]},
+    {day:"sat", time:"02:10 PM – 03:30 PM", icon:"🏖️", title:"Eden Beach Ocean Swim & Zipline Run", tag:["Blue Flag Beach","done"],
+      body:"Reached Eden Beach parking at 2:10 PM and walked down to the water by 2:16 PM. Spent 30 refreshing minutes swimming alone in the Blue Flag waves, then completed the coastal Zipline ride by 3:00 PM before wrapping up at 3:30 PM.",
+      links:[S("Eden Beach","Eden Beach Chinna Veerampattinam Puducherry")]},
+    {day:"sat", time:"03:30 PM – 04:15 PM", icon:"🍻", title:"Paradise Inn Restobar (Heineken Break)", tag:["Midday Restobar","party"],
+      body:"Pulled into <strong>Paradise Inn Restobar</strong> on the road back into town for another round of cold Heineken beers. Left at 4:15 PM pointed straight toward White Town.",
+      links:[S("Paradise Inn Restobar","Paradise Inn Restobar Puducherry")]},
+    {day:"sat", time:"04:35 PM – 06:30 PM", icon:"🍹", title:"French Colony, Promenade & Hook Lounge Rooftop", tag:["White Town Rooftop","party"],
+      body:"Reached the French Colony, Promenade Beach, and Rock Beach by 4:35 PM. Roamed the colorful colonial streets and headed up to <strong>Hook Lounge Rooftop</strong> right on the beach road. Enjoyed cold Budweisers with direct ocean views before checking out at 6:30 PM.",
+      links:[S("Hook Lounge Goubert Ave","Hook Lounge Goubert Avenue White Town Puducherry")]},
+    {day:"sat", time:"07:40 PM – 08:30 PM", icon:"📦", title:"The Budweiser Carton & Magnum Exchange", tag:["Bottle Swap","drama"],
+      body:"Rode back toward the cottage, stopping at a wine mart to buy a carton of Budweiser and snacks, reaching the room at 7:40 PM. Discovered the salesman had packed Budweiser Magnum instead of normal Budweiser; rode right back to the bar, exchanged them, and locked in 3 beers per head.",
+      highlight:["The Bottle Swap","Exchanged the heavy Magnums for normal Budweisers, securing 3 cold bottles each for the night."]},
+    {day:"sat", time:"08:30 PM – 10:30 PM", icon:"🍻", title:"Cottage Room Party (3 Beers per Head)", tag:["Room Party","party"],
+      body:"Settled into the Auroville cottage room for an uninterrupted drinking session with music and snacks, finishing all 3 beers each by 10:30 PM."},
+    {day:"sat", time:"10:30 PM – 11:30 PM", icon:"🔒", title:"The Black Market Store Lock-in (BP Half)", tag:["Lock-in Experience","drama"],
+      body:"Went out late searching for spirits. Found a black-market counter and bought a half bottle of Blenders Pride (BP). The shop owners literally locked everyone inside the store from the outside while making the sale for stealth! Returned to the room, but ended up leaving the seal completely unopened before falling asleep.",
+      highlight:["The Lock-in Incident","Locked inside the shutter by black-market sellers for secrecy; the unopened BP half survived for Sunday."]},
+
+    /* SUNDAY 4 OCT & MONDAY 5 OCT */
+    {day:"sun", time:"06:00 AM – 07:30 AM", icon:"🌅", title:"Auroville Beach Sunrise Walk", tag:["Quiet Sunrise","done"],
+      body:"Woke up at 6:00 AM and walked down to Auroville Beach by 6:30 AM to catch the quiet morning sunrise over the Bay of Bengal waves."},
+    {day:"sun", time:"09:00 AM – 10:00 AM", icon:"🚫", title:"Checkout & The Breakfast Miss", tag:["Food Misfire","food"],
+      body:"Cleared cottage dues and hit the highway toward Chennai by 9:00 AM. Stopped at 9:30 AM for breakfast; the tiffins were so bad everyone walked out without swallowing a single idli."},
+    {day:"sun", time:"10:30 AM – 12:00 PM", icon:"🍌", title:"Red Banana, Coconut Water & Watermelon Rescues", tag:["Highway Fuel","done"],
+      body:"Recharged with sweet red bananas and fresh coconut water on the highway. Stopped for tea at 11:20 AM which turned out terrible as well, so switched immediately to fresh, chilled watermelon juice."},
+    {day:"sun", time:"01:00 PM – 02:00 PM", icon:"🍛", title:"Return Lunch @ The Samudra Restaurant", tag:["Lunch Return","food"],
+      body:"Revisited <strong>The Samudra Restaurant</strong> on the ECR at 1:00 PM for a reliable, hearty lunch to cap off the highway run.",
+      links:[S("The Samudra Restaurant","The Samudra Restaurant Vadanemmeli ECR")]},
+    {day:"sun", time:"02:30 PM – 03:15 PM", icon:"🏍️", title:"AKS Rentals Bike Return (~400 km Logged)", tag:["Bike Drop","done"],
+      body:"Reached AKS Bike Rentals on Arcot Road, Vadapalani at 2:30 PM. Handed back both bikes with approximately 400 km clocked across the weekend. Freshened up on site.",
+      links:[S("AKS Bike Rentals Vadapalani","AKS Bike Rental Arcot Road Vadapalani Chennai")]},
+    {day:"sun", time:"03:50 PM – 05:00 PM", icon:"🏖️", title:"Marina Beach Stroll & Photo Shoot", tag:["Marina Beach","done"],
+      body:"Took autos at 3:15 PM and reached Marina Beach (world's 2nd longest) by 3:50 PM. Roamed the massive sands, snapped group photos, did some video shooting, and walked out at 5:00 PM.",
+      links:[S("Marina Beach Chennai","Marina Beach Chennai")]},
+    {day:"sun", time:"05:30 PM – 07:05 PM", icon:"🥃", title:"MGR Central, Platform 1 & The BP Half", tag:["Station Platform","drama"],
+      body:"Reached Puratchi Thalaivar Dr. MGR Central Railway Station at 5:30 PM. Met a local Telugu guy who gave insider advice to walk straight to Platform 1. With no wine shops nearby, finally cracked open the unopened Blenders Pride half brought from Pondy and finished it together outside before heading in.",
+      highlight:["The Scanner Bypass","Walked past the station scanners to Platform 1 and finished the Pondy BP half in Chennai."]},
+    {day:"sun", time:"07:25 PM – 10:00 PM", icon:"🚆", title:"Board Train, M4 to M1 Seat Swap & Gudur Dinner", tag:["Train Journey","done"],
+      body:"Boarded the 7:35 PM train at 7:25 PM. Had three berths in M1 and one separated in M4; requested passengers in M1 and successfully swapped seats so all four sat together (the TTE told you to wait, but you ignored him and stayed put). Dinner delivered hot at Gudur Station at 9:45 PM."},
+    {day:"sun", time:"05:00 AM – 08:30 AM", icon:"🏠", title:"Warangal Junction to Hyderabad Hostel", tag:["Final Arrival","done"],
+      body:"Train pulled into Warangal at 5:00 AM on Monday morning. Started toward Hyderabad at 5:30 AM and arrived safely at your hostel by 8:30 AM. Trip officially accomplished!"}
+  ];
+
+  var ROUTES = [
+    {t:"AKS Bike Rentals (Vadapalani)", m:"Starting & Ending bike rental hub on Arcot Road", q:"AKS Bike Rental Arcot Road Vadapalani Chennai"},
+    {t:"Surf Turf (Kovalam, ECR)", m:"15-min coastal breeze and hydration breather", q:"Surf Turf Kovalam"},
+    {t:"The Samudra Restaurant (Vada Nemmeli)", m:"Both Day 1 and Day 3 coastal non-veg lunch spot", q:"The Samudra Restaurant Vadanemmeli ECR"},
+    {t:"Shore Temple (Mahabalipuram)", m:"Monolithic 8th-century temple visited under noon sun", q:"Shore Temple Mahabalipuram"},
+    {t:"Auroville Beach & Cottage", m:"Your 2-night coastal stay and early morning sunrise spot", q:"Auroville Beach Bommayapalayam"},
+    {t:"Mangrove Forest Boating & Kayaking", m:"Arikamedu Trust / Baby Sarah Home backwater hub", q:"Mangrove Forest Boating Ariyankuppam Puducherry"},
+    {t:"Clinton Bar & Restaurant", m:"Ariyankuppam beer pitstop with drunk-and-drive clearance", q:"Clinton Bar and Restaurant Ariyankuppam Puducherry"},
+    {t:"Eden Beach & Zipline", m:"Blue Flag ocean swim and coastal adventure stop", q:"Eden Beach Chinna Veerampattinam Puducherry"},
+    {t:"Paradise Inn Restobar", m:"Afternoon Heineken pitstop on the way to White Town", q:"Paradise Inn Restobar Puducherry"},
+    {t:"Hook Lounge (Goubert Avenue)", m:"Rooftop restobar over Rock Beach & French Colony", q:"Hook Lounge Goubert Avenue White Town Puducherry"},
+    {t:"Marina Beach (Chennai)", m:"World's 2nd longest beach photo and video shoot", q:"Marina Beach Chennai"},
+    {t:"Puratchi Thalaivar Dr. MGR Central", m:"Platform 1 bypass, BP half finish & return train home", q:"Chennai Central Railway Station"}
+  ];
+
+  function linkHTML(l){
+    var icon = l.nav ? NAV : PIN;
+    return '<a class="btn' + (l.nav ? " solid" : "") + '" href="' + l.u + '" target="_blank" rel="noopener">' + icon + l.t + '</a>';
+  }
+
+  ITEMS.forEach(function(it, i){
+    var li = document.createElement("li");
+    li.className = "stop"; li.id = "stop-" + i;
+    var h = '<span class="node" aria-hidden="true">' + it.icon + '</span><div class="card">';
+    h += '<div class="t-row"><span class="time">' + it.time + '</span>';
+    if(it.tag) h += '<span class="tag ' + it.tag[1] + '">' + it.tag[0] + '</span>';
+    h += '</div>';
+    h += '<h3>' + it.title + '</h3>';
+    h += '<p class="body">' + it.body + '</p>';
+    if(it.highlight) h += '<p class="highlight"><b>' + it.highlight[0] + ':</b> ' + it.highlight[1] + '</p>';
+    if(it.links && it.links.length) h += '<div class="links">' + it.links.map(linkHTML).join("") + '</div>';
+    h += '</div>';
+    li.innerHTML = h;
+    document.querySelector('.stops[data-day="' + it.day + '"]').appendChild(li);
+  });
+
+  document.getElementById("routeList").innerHTML = ROUTES.map(function(r, i){
+    return '<div class="row"><span class="num">' + (i + 1) + '</span><div class="row-main"><div class="row-t">' + r.t + '</div><div class="row-m">' + r.m + '</div></div>' +
+      linkHTML(S("Open Map", r.q)) + '</div>';
+  }).join("");
+
+  var chips = Array.prototype.slice.call(document.querySelectorAll(".chip"));
+  var chipBar = document.getElementById("chips");
+  function setChip(id){
+    chips.forEach(function(c){
+      var on = c.dataset.for === id; c.classList.toggle("on", on);
+      if(on){ try { chipBar.scrollTo({left: c.offsetLeft - 18, behavior: "smooth"}); } catch(e){ chipBar.scrollLeft = c.offsetLeft - 18; } }
+    });
+  }
+  if("IntersectionObserver" in window){
+    var io = new IntersectionObserver(function(es){
+      es.forEach(function(e){ if(e.isIntersecting) setChip(e.target.dataset.spy); });
+    }, {rootMargin:"-40% 0px -55% 0px"});
+    document.querySelectorAll("[data-spy]").forEach(function(s){ io.observe(s); });
+  }
+})();
+</script>
+</body>
+</html>
